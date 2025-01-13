@@ -2,6 +2,7 @@
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,15 +14,24 @@ Route::get('/about', function () {
 });
 
 Route::get('/posts', function () {
-    return view('posts', ['title' => 'Blog', 'posts' => Post::all()]);
+    // $posts = Post::with(['author','category'])->latest()->get();
+    $posts = Post::latest()->get();
+
+    return view('posts', ['title' => 'Blog', 'posts' => $posts]);
 });
 
 Route::get('/post/{post:slug}', function (Post $post) {
     return view('post', ['title' => 'Single Post', 'post' => $post]);
 });
 
-Route::get('/author/{user}', function (User $user) {
-    return view('posts', ['title' => 'Article By ' . $user->name, 'posts' => $user->posts]);
+Route::get('/author/{user:username}', function (User $user) {
+    // $posts = $user->posts->load('category', 'author');
+    return view('posts', ['title' => count($user->posts) . ' Article By ' . $user->name, 'posts' => $user->posts]);
+});
+
+Route::get('/category/{category:slug}', function (Category $category) {
+    // $posts = $user->posts->load('category', 'author');
+    return view('posts', ['title' => 'Article in: ' . $category->name, 'posts' => $category->posts]);
 });
 
 Route::get('/contact', function () {
